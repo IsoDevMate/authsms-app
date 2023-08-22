@@ -2,6 +2,7 @@
 import {supabase} from './client'
 import { useState,useEffect } from 'react';
 import './index.css'
+
 const App=()=> {
 //manage local state //handle life cycle methods
 //handle posts from the supabase client 
@@ -15,14 +16,14 @@ useEffect(()=>{
 },[])
 
 const FetchPosts=async()=>{
-        const { data } = await supabase.from("posts").select();
+        const {data } = await supabase.from("Posts").select('');
         //set the posts array from posts returned from supabase backend
         setPosts(data);
         console.log("data ",data)
       } 
 //insert  a post of the user  from the frontend
 const CreatePost=async()=>{
-    await supabase.from("posts").insert([{title,content}])
+    await supabase.from("Posts").insert([{title,content}])
     //call the setPost to set the post fields
     .single()
     setPost({title:'',content:''})
@@ -42,7 +43,8 @@ placeholder='Content'
 value={content}
 onChange={ e =>setPost({...post,content:e.target.value})}
  />
-<button >{CreatePost}</button>
+<button onClick={CreatePost}>Create Post</button>
+
 {   posts.map(post=>(
     <div className="display" key={posts.id }>
    <h3>{post.title}</h3>
