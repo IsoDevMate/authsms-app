@@ -1,61 +1,87 @@
+import { supabase } from './client';
+import {  useEffect,useReducer } from 'react';
+import './index.css';
 
-import {supabase} from './client'
-import { useState,useEffect } from 'react';
-import './index.css'
+const App = () => {
+  const initialState = {
+    posts: [],
+    post: { title: '', content: '' }
+  };
 
-const App=()=> {
-//manage local state //handle life cycle methods
-//handle posts from the supabase client 
-const [posts,setPosts]=useState([])
-//handle user input as they type in their post
-const[post,setPost]=useState([{title:"",content:""}])
-const{title,content}=post
-//invoke the useEffect to handle life cycle methods
-useEffect(()=>{
-    FetchPosts()
-},[])
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'SET_POSTS':
+        return { ...state, posts: action.payload };
+      case 'SET_POST':
+        return { ...state, post: action.payload };
+      case 'RESET_POST':
+        return { ...state, post: { title: '', content: '' } };
+      default:
+        return state;
+    }
+  };
 
-const FetchPosts=async()=>{
-        const {data } = await supabase.from("Posts").select('');
-        //set the posts array from posts returned from supabase backend
-        setPosts(data);
-        console.log("data ",data)
-      } 
-//insert  a post of the user  from the frontend
-const CreatePost=async()=>{
-    await supabase.from("Posts").insert([{title,content}])
-    //call the setPost to set the post fields
-    .single()
-    setPost({title:'',content:''})
-    //call the FetchPost to update the UI
-    FetchPosts()
-}
-return(
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { posts, post } = state;
+
+  const fetchPosts = async () => {
+    try {
+      const { data } = await supabase.from('Posts').select('*');
+      dispatch({ type: 'SET_POSTS', payload: data || [] });
+      console.log('data',data)
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleTitleChange = (e) => {
+    dispatch({ type: 'SET_POST', payload: { ...post, title: e.target.value } });
+  };
+
+  const handleContentChange = (e) => {
+    dispatch({ type: 'SET_POST', payload: { ...post, content: e.target.value } });
+  };
+
+  const createPost = async () => {
+    try {
+      await supabase.from('Posts').upsert([post]);
+      dispatch({ type: 'RESET_POST' });
+      posts.push(post);
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
+  };
+
+  return (
     <>
-     <div className="App">
-<input
-placeholder='Title'
-value={title}
-onChange={ e =>setPost({...post,title:e.target.value})}
- />
-<input
-placeholder='Content'
-value={content}
-onChange={ e =>setPost({...post,content:e.target.value})}
- />
-<button onClick={CreatePost}>Create Post</button>
+      <div className="App">
+        <input
+          placeholder="Title"
+          value={post.title}
+          onChange={handleTitleChange}
+        />
+        <input
+          placeholder="Content"
+          value={post.content}
+          onChange={handleContentChange}
+        />
+        <button onClick={createPost}>Create Post</button>
 
-{   posts.map(post=>(
-    <div className="display" key={posts.id }>
-   <h3>{post.title}</h3>
-   <p>{post.content}</p>
-    </div>
-))
-}
-</div>
+        {posts.map((post) => (
+          <div className="display" key={post.id}>
+            <h3>{post.title}</h3>
+            <p>{post.content}</p>
+          </div>
+        ))}
+      </div>
     </>
-   
-)
-}
-export default App
+  );
+};
+
+export default App;
 
