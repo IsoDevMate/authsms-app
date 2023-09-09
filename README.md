@@ -1,8 +1,9 @@
-# React + Vite
+## I have two files app.jsx and apppstate.jsx
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Appstate.jsx utilizes useState for component state  and lifecycle
+App.jsx which I was experimenting utilizes useReducer for better statemanagement
 
-Currently, two official plugins are available:
+I would advice you to use the appstate.jsx for rendering while  I still work on the App.jsx
+  which is the imported to the main.jsx file by default.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  Thank you 
